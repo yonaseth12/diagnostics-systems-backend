@@ -39,10 +39,13 @@ def predict():
   suggestion_translated = translate_to_local_language(suggestion, user_language)
   disease_name_translated = translate_to_local_language(disease_name, user_language)
 
+  # Before returning, convert predictions to native Python types
+  predictions_py = [(disease, float(prob)) for disease, prob in prediction]
+
   return jsonify({
     "disease": disease_name_translated,
     "suggestion": suggestion_translated,
-    "predictions": prediction
+    "predictions": predictions_py
   })
 
 if __name__ == '__main__':
