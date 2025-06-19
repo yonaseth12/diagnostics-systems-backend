@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from model.utils import translate_to_english, translate_to_local_language
 from model.city_model.debre_markos_model import predict_disease_dm
 from model.city_model.mojo_model import predict_disease_mj
@@ -7,6 +8,7 @@ from model.constants import disease_classes
 from model.suggestion_layer import disease_advice, THRESHOLDS, get_top_disease_and_suggestion
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/predict', methods=['POST'])
@@ -40,10 +42,17 @@ def predict():
   disease_name_translated = translate_to_local_language(disease_name, user_language)
 
   # Before returning, convert predictions to native Python types
-  predictions_py = [(disease, float(prob)) for disease, prob in prediction]
+  predictions_py = dict({(str(disease), float(prob)) for disease, prob in prediction})
+
+  # print(type(prediction))
+  # print("-----------------")
+  # print(prediction)
+  # print("-----------------")
+  # prediction_dict = {str(disease): float(probability) for disease, probability in prediction}
 
   return jsonify({
-    "disease": disease_name_translated,
+    "disease_translated": disease_name_translated,
+    "disease": disease_name,
     "suggestion": suggestion_translated,
     "predictions": predictions_py
   })
